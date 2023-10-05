@@ -1,0 +1,37 @@
+@startuml "game-scenario"
+
+title "Сценарий проведения игры"
+
+actor "Ведущий" as admin
+actor "Игроки" as players
+participant "Телеграм" as bot
+participant "Google sheets: Шаги" as moves
+participant "Google sheets: Калькулятор" as calc
+
+autonumber
+
+admin -> bot: инициализация игры (/newgame)
+admin -> players:* вводные слайды\n* ссылка на бот\n* начало игры
+players -> bot: */start\n* регистрация игрока/команды\n* выбор роли\n
+loop 3 итерации
+    bot -> players: информация текущего шага\n(архитектура, бюджет,\nдля хакеров - сценарии атак)
+    players -> bot:* ввод выбора шага 
+    players -> admin: выбор сделан\n(информируют голосом, руками,\n реакцией в чате)
+    admin -> bot: завершение шага игры (/endround)
+    bot -> moves: выбор игроков (вкладка Moves)
+    calc <- moves: выбор игроков\n(через связь таблиц калькулятора и шагов)
+    calc -> calc: подведение итогов шага
+    calc -> moves: итоги шага (вкладка Results)
+    admin -> bot: разослать результаты шага игрокам (/roundresults)
+    bot -> moves: запрос результатов
+    bot <-- moves: результаты шага 
+    bot -> players: индивидуальные результаты
+    admin -> players:* интерпретация результатов шага игры\n* анонс следующего шага 
+    admin -> bot: начать следующий шаг (/startround)    
+end
+bot -> players: "игра завершена!"
+admin -> players: * подведение итогов игры\n* выводы\n* запрос обратной связи
+players --> admin: обратная связь
+
+
+@enduml
